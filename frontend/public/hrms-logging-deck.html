@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HRMS Logging & Security Platform — PM Deck</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css" id="theme" />
+  <style>
+    .reveal h2 { color:#1f2937; }
+    .brand { color:#4f46e5; font-weight:600; }
+    .small { font-size:0.85em; color:#6b7280; }
+    .diagram svg { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        <h2 class="brand">HRMS Logging & Security Platform</h2>
+        <p>End-to-end activity logging • Tamper-evident audit trails • Modern UX • Alerts • Retention • Flexible storage</p>
+        <p class="small">PM demo ready • Works with MySQL/SQLite • RBAC • CSV/XLSX/PDF exports</p>
+      </section>
+
+      <section>
+        <h2>Problem & Goals</h2>
+        <ul>
+          <li>Need reliable, searchable audit trail across HRMS operations</li>
+          <li>Ensure tamper-evidence and integrity verification</li>
+          <li>Provide self-serve UI with filters, pagination, and exports</li>
+          <li>Configurable alerts and retention for compliance</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Architecture Overview</h2>
+        <div class="diagram">
+          <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <style>
+                .box{fill:#f8fafc;stroke:#cbd5e1;stroke-width:1.5;rx:8}
+                .title{font:600 14px sans-serif;fill:#111827}
+                .sub{font:12px sans-serif;fill:#6b7280}
+                .arrow{stroke:#9ca3af;stroke-width:2;marker-end:url(#a)}
+              </style>
+              <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 Z" fill="#9ca3af"/>
+              </marker>
+            </defs>
+            <!-- Frontend -->
+            <rect x="40" y="40" width="280" height="90" class="box"/>
+            <text x="60" y="65" class="title">Frontend (Vite/React UI)</text>
+            <text x="60" y="88" class="sub">Filters • Pagination • Exports • Alerts</text>
+            <text x="60" y="108" class="sub">API Key • RBAC</text>
+            <!-- Backend -->
+            <rect x="340" y="40" width="200" height="90" class="box"/>
+            <text x="360" y="65" class="title">Backend PHP API</text>
+            <text x="360" y="88" class="sub">/api.php (logs, audits, alerts, auth)</text>
+            <text x="360" y="108" class="sub">Integrity verify • Retention</text>
+            <!-- Storage -->
+            <rect x="560" y="40" width="200" height="90" class="box"/>
+            <text x="580" y="65" class="title">Storage</text>
+            <text x="580" y="88" class="sub">MySQL or SQLite</text>
+            <text x="580" y="108" class="sub">Immutability via triggers</text>
+            <!-- HRMS Helper -->
+            <rect x="40" y="170" width="280" height="90" class="box"/>
+            <text x="60" y="195" class="title">HRMS Logging Helper</text>
+            <text x="60" y="218" class="sub">Emit events from modules</text>
+            <text x="60" y="238" class="sub">Least-privilege keys</text>
+            <!-- Alerts config -->
+            <rect x="560" y="170" width="200" height="90" class="box"/>
+            <text x="580" y="195" class="title">Alerts Config</text>
+            <text x="580" y="218" class="sub">storage/alerts.json</text>
+            <text x="580" y="238" class="sub">Evaluations via API</text>
+            <!-- Arrows -->
+            <line x1="320" y1="85" x2="340" y2="85" class="arrow"/>
+            <line x1="540" y1="85" x2="560" y2="85" class="arrow"/>
+            <line x1="320" y1="215" x2="340" y2="130" class="arrow"/>
+            <line x1="740" y1="215" x2="740" y2="130" class="arrow"/>
+          </svg>
+        </div>
+      </section>
+
+      <section>
+        <h2>Data Model & Immutability</h2>
+        <ul>
+          <li>Write-once logs with DB-level triggers to prevent tampering</li>
+          <li>Chain-of-custody via integrity verification endpoint</li>
+          <li>Audits capture administrative actions and config changes</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Backend Capabilities</h2>
+        <ul>
+          <li>REST endpoints: logs, audits, alerts, stats, auth</li>
+          <li>RBAC using API keys (reader/writer/admin)</li>
+          <li>Configurable retention policies</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Frontend Features</h2>
+        <ul>
+          <li>Logs & Audits: filters, pagination, drill-down</li>
+          <li>Exports: CSV, XLSX, and PDF</li>
+          <li>Alerts indicator and evaluation</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>HRMS Integration</h2>
+        <ul>
+          <li>Helper library to emit events from HRMS modules</li>
+          <li>Sample events for demo and testing</li>
+          <li>No auto-ingest of third-party/OS logs (out of scope)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Security & Compliance</h2>
+        <ul>
+          <li>Role-based access, integrity checks, immutability</li>
+          <li>Auditability: exports, retention, and review workflows</li>
+          <li>Least-privilege credentials and optional strict mode</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Flow</h2>
+        <ol>
+          <li>Set API key → fetch roles</li>
+          <li>Generate sample logs → filter & drill-down</li>
+          <li>Verify integrity → show audit entries</li>
+          <li>Check alerts → export CSV/XLSX/PDF</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Acceptance & Next Steps</h2>
+        <ul>
+          <li>Frontend: loading, filtering, pagination, exports</li>
+          <li>Backend: write/read logs, immutability, alerts</li>
+          <li>Next: wire helper into HRMS modules; finalize retention</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Risks & Mitigations</h2>
+        <ul>
+          <li>Scaling: add indexes & pagination tuning</li>
+          <li>Access: enforce least-privilege keys</li>
+          <li>Compliance: schedule periodic integrity checks</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({ hash: true, slideNumber: true, controls: true });
+  </script>
+</body>
+</html>
