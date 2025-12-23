@@ -6,8 +6,6 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use PDO;
-use Throwable;
 
 class AlertsController extends BaseController
 {

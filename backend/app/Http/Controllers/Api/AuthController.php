@@ -7,8 +7,6 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Config;
-use PDO;
-use Throwable;
 
 class AuthController extends BaseController
 {
