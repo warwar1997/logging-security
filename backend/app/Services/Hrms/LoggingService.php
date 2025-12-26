@@ -9,8 +9,7 @@ use RuntimeException;
 /**
  * Structured HRMS Logging service for Laravel.
  * Provides a clean API to send standardized log events to the backend,
- * preferring the Laravel route /api/logs and gracefully falling back to
- * legacy /public/api.php?resource=logs when necessary.
+ * using the Laravel route /api/logs.
  */
 class LoggingService
 {
@@ -35,26 +34,21 @@ class LoggingService
     }
 
     /**
-     * Log a standardized action.
-     * @param array{user?:string,success?:int|bool,severity?:string,details?:mixed,ip?:string,ua?:string,ts?:int} $params
-     * @return array Decoded JSON response
-     */
-    public function logAction(string $module, string $action, array $params = []): array
-    {
-        if ($module === '' || $action === '') {
-            throw new \InvalidArgumentException('module and action are required');
-        }
-        $payload = $this->buildPayload($module, $action, $params);
+      * Log a standardized action.
+      * @param array{user?:string,success?:int|bool,severity?:string,details?:mixed,ip?:string,ua?:string,ts?:int} $params
+      * @return array Decoded JSON response
+      */
+     public function logAction(string $module, string $action, array $params = []): array
+     {
+         if ($module === '' || $action === '') {
+             throw new \InvalidArgumentException('module and action are required');
+         }
+         $payload = $this->buildPayload($module, $action, $params);
 
-        // Prefer Laravel API route
-        $primaryUrl = $this->baseUrl . '/api/logs';
-        $fallbackUrl = $this->baseUrl . '/api.php?resource=logs';
+        // Always use Laravel API route.
+        $url = $this->baseUrl . '/api/logs';
 
-        $resp = $this->postJson($primaryUrl, $payload);
-        if ($resp === null) {
-            // Fallback to legacy endpoint
-            $resp = $this->postJson($fallbackUrl, $payload);
-        }
+        $resp = $this->postJson($url, $payload);
         if ($resp === null) {
             throw new RuntimeException('Logging API not reachable');
         }
@@ -66,7 +60,7 @@ class LoggingService
             throw new RuntimeException('Logging API error: ' . (string) $decoded['error']);
         }
         return $decoded;
-    }
+     }
 
     /**
      * Convenience: returns boolean and never throws.

@@ -69,7 +69,7 @@ function hrms_log_action(string $module, string $action, array $params = []): ar
     // If caller provides ts, include it (API will otherwise use current time)
     if ($ts !== null && $ts > 0) { $payload['ts'] = $ts; }
 
-    $url = $cfg->baseUrl . '/api.php?resource=logs';
+    $url = $cfg->baseUrl . '/api/logs';
     $resp = http_post_json_with_bearer($url, $payload, $cfg->apiKey);
     $decoded = json_decode($resp, true);
     if (!is_array($decoded)) {

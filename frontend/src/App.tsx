@@ -69,7 +69,7 @@ function Dashboard({ apiKey }: { apiKey: string }) {
     setError(null)
     if (!apiKey) { setLoading(false); return }
     try {
-      const params: any = { resource: 'logs', per_page: 50, page: 1 }
+      const params: any = { per_page: 50, page: 1 }
       if (moduleD) params.module = moduleD
       if (actionD) params.action = actionD
       if (monthD) params.month = monthD
@@ -82,7 +82,7 @@ function Dashboard({ apiKey }: { apiKey: string }) {
       if (ipD) params.ip = ipD
       if (sortByD) params.sort_by = sortByD
       if (orderD) params.order = orderD
-      const { data } = await api.get('/api.php', { params })
+      const { data } = await api.get('/api/logs', { params })
       const list = data?.data || []
       setRows(list)
       const counts = list.reduce((acc: { [key: string]: number }, r: any) => {
@@ -214,13 +214,13 @@ function AlertsPage() {
   const [error, setError] = useState<string | null>(null)
   // RBAC: fetch roles
   const [roles, setRoles] = useState<string[]>([])
-  useEffect(() => { (async () => { try { const { data } = await api.get('/api.php', { params: { resource: 'auth' } }); setRoles(Array.isArray(data?.roles) ? data.roles : []) } catch {} })() }, [])
+  useEffect(() => { (async () => { try { const { data } = await api.get('/api/auth'); setRoles(Array.isArray(data?.roles) ? data.roles : []) } catch {} })() }, [])
   const isAdmin = roles.includes('admin')
 
   const fetchRules = async () => {
     setLoading(true); setError(null)
     try {
-      const { data } = await api.get('/api.php', { params: { resource: 'alerts', type, enabled, q: debouncedQ, page, per_page: perPage, evaluate: 1 } })
+      const { data } = await api.get('/api/alerts', { params: { type, enabled, q: debouncedQ, page, per_page: perPage, evaluate: 1 } })
       setRules(Array.isArray(data?.rules) ? data.rules : [])
       setTotal(Number(data?.meta?.total || 0))
       setEvaluation(Array.isArray(data?.evaluation) ? data.evaluation : [])
@@ -234,14 +234,14 @@ function AlertsPage() {
   const onToggle = async (rule: any, en: boolean) => {
     try {
       const payload: any = { id: rule.id, enabled: en ? 1 : 0 }
-      await api.put('/api.php', payload, { params: { resource: 'alerts', id: rule.id } })
+      await api.put(`/api/alerts/${rule.id}`, payload)
       fetchRules()
     } catch (e: any) { alert('Update failed: ' + (e?.message || '')) }
   }
   const onInlineEdit = async (rule: any, updates: any) => {
     try {
       const payload = { id: rule.id, ...updates }
-      await api.put('/api.php', payload, { params: { resource: 'alerts', id: rule.id } })
+      await api.put(`/api/alerts/${rule.id}`, payload)
       fetchRules()
     } catch (e: any) { alert('Update failed: ' + (e?.message || '')) }
   }
@@ -384,7 +384,7 @@ function LogsPage() {
   const [verifyResult, setVerifyResult] = useState<{ valid: boolean; break_at_id: number | null; checked: number } | null>(null)
   // RBAC: fetch roles for admin-only actions
   const [roles, setRoles] = useState<string[]>([])
-  useEffect(() => { (async () => { try { const { data } = await api.get('/api.php', { params: { resource: 'auth' } }); setRoles(Array.isArray(data?.roles) ? data.roles : []) } catch {} })() }, [])
+  useEffect(() => { (async () => { try { const { data } = await api.get('/api/auth'); setRoles(Array.isArray(data?.roles) ? data.roles : []) } catch {} })() }, [])
   const isAdmin = roles.includes('admin')
   // Auto-refresh controls
   const [autoRefresh, setAutoRefresh] = useState(false)
@@ -400,7 +400,7 @@ function LogsPage() {
   const onFilter = async () => {
     setLoading(true); setError(null)
     try {
-      const params: any = { resource: 'logs', page, per_page: perPage }
+      const params: any = { page, per_page: perPage }
       if (module) params.module = module
       if (action) params.action = action
       if (from) params.from = from
@@ -408,7 +408,7 @@ function LogsPage() {
       if (debouncedQ) params.q = debouncedQ
       if (user) params.user = user
       if (success !== '') params.success = success
-      const { data } = await api.get('/api.php', { params })
+      const { data } = await api.get('/api/logs', { params })
       setRows(Array.isArray(data?.data) ? data.data : [])
       setTotal(typeof data?.meta?.total === 'number' ? data.meta.total : (Array.isArray(data?.data) ? data.data.length : 0))
     } catch (e: any) {
@@ -425,7 +425,7 @@ function LogsPage() {
         { module: 'Employees', action: 'update', user: 'bob', success: 1, severity: 'warning', details: { fields: ['email'] } },
       ]
       for (const s of samples) {
-        await api.post('/api.php', s, { params: { resource: 'logs' } })
+        await api.post('/api/logs', s)
       }
       await onFilter()
     } catch (e: any) {
@@ -457,7 +457,7 @@ function LogsPage() {
   }
   const verifyIntegrity = async () => {
     try {
-      const { data } = await api.get('/api.php', { params: { resource: 'logs', verify: 1 } })
+      const { data } = await api.get('/api/logs', { params: { verify: 1 } })
       if (typeof data?.valid !== 'undefined') setVerifyResult({ valid: !!data.valid, break_at_id: (data.break_at_id ?? null), checked: Number(data.checked || 0) })
     } catch (e: any) { alert('Verify failed: ' + (e?.message || '')) }
   }
@@ -629,19 +629,19 @@ function AuditsPage() {
   const [error, setError] = useState<string | null>(null)
   // RBAC: roles for compliance export access in Audits
   const [roles, setRoles] = useState<string[]>([])
-  useEffect(() => { (async () => { try { const { data } = await api.get('/api.php', { params: { resource: 'auth' } }); setRoles(Array.isArray(data?.roles) ? data.roles : []) } catch {} })() }, [])
+  useEffect(() => { (async () => { try { const { data } = await api.get('/api/auth'); setRoles(Array.isArray(data?.roles) ? data.roles : []) } catch {} })() }, [])
   const canCompliance = roles.includes('compliance') || roles.includes('admin')
 
   const onFilter = async () => {
     setLoading(true); setError(null)
     try {
-      const params: any = { resource: 'audits', page, per_page: perPage }
+      const params: any = { page, per_page: perPage }
       if (type) params.type = type
       if (actor) params.actor = actor
       if (from) params.from = from
       if (to) params.to = to
       if (debouncedQ) params.q = debouncedQ
-      const { data } = await api.get('/api.php', { params })
+      const { data } = await api.get('/api/audits', { params })
       setRows(Array.isArray(data?.data) ? data.data : [])
       setTotal(typeof data?.meta?.total === 'number' ? data.meta.total : (Array.isArray(data?.data) ? data.data.length : 0))
     } catch (e: any) {
@@ -675,10 +675,10 @@ function AuditsPage() {
     doc.text('Compliance Report', 14, 16)
     try {
       const [{ data: verify }, { data: stats }, { data: alerts }, { data: audits }] = await Promise.all([
-        api.get('/api.php', { params: { resource: 'logs', verify: 1 } }),
-        api.get('/api.php', { params: { resource: 'stats', window: 86400 } }),
-        api.get('/api.php', { params: { resource: 'alerts', per_page: 100 } }),
-        api.get('/api.php', { params: { resource: 'audits', page: 1, per_page: 100 } }),
+        api.get('/api/logs', { params: { verify: 1 } }),
+        api.get('/api/stats', { params: { window: 86400 } }),
+        api.get('/api/alerts', { params: { per_page: 100 } }),
+        api.get('/api/audits', { params: { page: 1, per_page: 100 } }),
       ])
       autoTable(doc, {
         startY: 22,
@@ -825,7 +825,7 @@ function Topbar({ apiKey, setApiKey }: { apiKey: string; setApiKey: (v: string) 
     setChecking(true)
     setAuthErr(null)
     try {
-      const { data } = await api.get('/api.php', { params: { resource: 'auth' } })
+      const { data } = await api.get('/api/auth')
       setRoles(Array.isArray(data?.roles) ? data.roles : [])
     } catch (e: any) {
       setRoles([])
@@ -838,7 +838,7 @@ function Topbar({ apiKey, setApiKey }: { apiKey: string; setApiKey: (v: string) 
     if (!apiKey) { setAlertCount(0); return }
     setAlertChecking(true)
     try {
-      const { data } = await api.get('/api.php', { params: { resource: 'alerts', evaluate: 1 } })
+      const { data } = await api.get('/api/alerts', { params: { evaluate: 1 } })
       const evals: any[] = Array.isArray(data?.evaluation) ? data.evaluation : []
       const triggered = evals.filter((e:any) => !!e?.triggered)
       setAlertCount(triggered.length)
@@ -902,7 +902,7 @@ function ProtectedRoute({ children, apiKey }: { children: React.ReactNode; apiKe
         return
       }
       try {
-        const { data } = await api.get('/api.php', { params: { resource: 'auth' } })
+        const { data } = await api.get('/api/auth')
         const roles: string[] = Array.isArray(data?.roles) ? data.roles : []
         const canRead = roles.includes('admin') || roles.includes('compliance') || roles.includes('viewer')
         if (!cancelled) setState({ allowed: canRead, loading: false, err: null })
@@ -993,13 +993,13 @@ function ActionsPage() {
   const [runCurrency, setRunCurrency] = useState<string>('USD')
   const [runSuccess, setRunSuccess] = useState<boolean>(true)
 
-  useEffect(() => { (async () => { try { const { data } = await api.get('/api.php', { params: { resource: 'auth' } }); setRoles(Array.isArray(data?.roles) ? data.roles : []) } catch { setRoles([]) } })() }, [])
+  useEffect(() => { (async () => { try { const { data } = await api.get('/api/auth'); setRoles(Array.isArray(data?.roles) ? data.roles : []) } catch { setRoles([]) } })() }, [])
   const canWrite = roles.includes('admin') || roles.includes('compliance')
 
   const postLog = async (payload: any) => {
     setLoading(true); setMsg('')
     try {
-      await api.post('/api.php', payload, { params: { resource: 'logs' } })
+      await api.post('/api/logs', payload)
       setMsg('Event logged successfully')
     } catch (e: any) {
       setMsg('Failed to log event: ' + (e?.message || ''))
@@ -1142,7 +1142,7 @@ function ProtectedRouteWrite({ children, apiKey }: { children: React.ReactNode; 
     const check = async () => {
       if (!apiKey) { if (!cancelled) setState({ allowed: false, loading: false, err: null }); return }
       try {
-        const { data } = await api.get('/api.php', { params: { resource: 'auth' } })
+        const { data } = await api.get('/api/auth')
         const roles: string[] = Array.isArray(data?.roles) ? data.roles : []
         const canWrite = roles.includes('admin') || roles.includes('compliance')
         if (!cancelled) setState({ allowed: canWrite, loading: false, err: null })

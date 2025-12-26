@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    // HRMS Logging demo keys: defaults for development, override via .env
+    'api_key_read' => env('API_KEY_READ', 'test-read'),
+    'api_key_write' => env('API_KEY_WRITE', 'test-write'),
+
 ];

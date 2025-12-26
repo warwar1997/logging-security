@@ -12,8 +12,7 @@ use App\Http\Controllers\Api\AlertsController;
 | API Routes
 |--------------------------------------------------------------------------
 | These routes implement the logging backend using Laravel conventions.
-| They mirror the existing public/api.php endpoints to maintain compatibility
-| with the frontend, while providing a proper controller-based structure.
+| Legacy public/api.php has been removed; clients should use /api/* endpoints.
 */
 
 Route::get('/auth', [AuthController::class, 'index']);
@@ -26,3 +25,6 @@ Route::get('/audits', [AuditsController::class, 'index']);
 Route::get('/stats', [StatsController::class, 'index']);
 
 Route::get('/alerts', [AlertsController::class, 'index']);
+Route::post('/alerts', [AlertsController::class, 'store']);
+Route::put('/alerts/{id}', [AlertsController::class, 'update']);
+Route::delete('/alerts/{id}', [AlertsController::class, 'destroy']);

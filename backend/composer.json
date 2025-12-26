@@ -24,7 +24,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "helper/hrms_logging_helper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

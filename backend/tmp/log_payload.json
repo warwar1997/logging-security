@@ -1,0 +1,11 @@
+{
+  "module": "Employees",
+  "action": "update",
+  "user": "alice",
+  "success": 1,
+  "severity": "info",
+  "details": {
+    "resource": "employee:123",
+    "fields": ["email"]
+  }
+}
