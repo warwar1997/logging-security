@@ -1,23 +1,39 @@
-import axios from 'axios'
+import axios, { type AxiosRequestHeaders } from "axios";
+
+const envBase = import.meta.env?.VITE_API_BASE_URL as string | undefined;
+let normalizedBase = envBase;
+if (!envBase && import.meta.env.DEV) {
+  normalizedBase = "";
+} else if (typeof envBase === "string" && /localhost/i.test(envBase)) {
+  try {
+    const u = new URL(envBase);
+    u.hostname = "127.0.0.1";
+    normalizedBase = u.toString();
+  } catch {
+    normalizedBase = envBase;
+  }
+}
 
 const api = axios.create({
-  baseURL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8000',
-  headers: { Accept: 'application/json' },
+  baseURL: normalizedBase,
+  headers: { Accept: "application/json" },
   withCredentials: false,
   timeout: 10000,
-})
+});
 
-// Attach API key from localStorage on every request
 api.interceptors.request.use((config) => {
   try {
-    const key = localStorage.getItem('apiKey')
+    const key = localStorage.getItem("apiKey");
     if (key) {
-      config.headers = config.headers || {}
-      ;(config.headers as any)['Authorization'] = `Bearer ${key}`
-      ;(config.headers as any)['X-API-KEY'] = key
+      const headers = (config.headers ?? {}) as AxiosRequestHeaders;
+      headers["Authorization"] = `Bearer ${key}`;
+      headers["X-API-KEY"] = key;
+      config.headers = headers;
     }
-  } catch {}
-  return config
-})
+  } catch {
+    void 0;
+  }
+  return config;
+});
 
-export default api
+export default api;
